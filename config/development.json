@@ -1,0 +1,9 @@
+{
+  "API_URL": "http://localhost:3000",
+  "API_TIMEOUT_MS": 10000,
+  "LOG_LEVEL": "DEBUG",
+  "FEATURE_FLAGS": {
+    "newSearch": true,
+    "betaFeatures": true
+  }
+}

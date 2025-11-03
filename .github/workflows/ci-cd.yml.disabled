@@ -1,0 +1,136 @@
+name: GAS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ develop ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '!src/services/s3-data-service.ts'  # AWS専用ファイルを除外
+  pull_request:
+    branches: [ develop ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '!src/services/s3-data-service.ts'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'GASデプロイ環境'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - production
+
+jobs:
+  gas-test:
+    name: GAS Environment Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+    
+    - name: TypeScript compilation check (GAS)
+      run: |
+        echo "🔍 Checking TypeScript compilation for GAS..."
+        npx tsc --noEmit --skipLibCheck
+    
+    - name: Run GAS-specific tests
+      run: |
+        echo "🧪 Running GAS environment tests..."
+        npm run test:unit -- --testPathIgnorePatterns="aws|s3-data-service"
+      env:
+        NODE_ENV: test
+    
+    - name: Generate test report
+      run: node scripts/generate-sonar-test-report.js
+      if: always()
+    
+    - name: SonarQube Scan (GAS)
+      uses: SonarSource/sonarcloud-github-action@master
+      if: always()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Upload GAS coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: gas-coverage-reports
+        path: coverage/
+      if: always()
+
+  gas-deploy:
+    name: Deploy to Google Apps Script
+    needs: gas-test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+    
+    - name: Setup Clasp for GAS
+      run: |
+        echo "🔧 Setting up Google Apps Script deployment..."
+        echo '${{ secrets.CLASPRC_JSON }}' > .clasprc.json
+        echo '{"scriptId":"${{ secrets.SCRIPT_ID }}", "rootDir":"src"}' > .clasp.json
+        echo "📋 Clasp configuration complete"
+    
+    - name: Build and Deploy to GAS
+      run: |
+        echo "🚀 Building and deploying to Google Apps Script..."
+        npm run deploy
+        echo "✅ GAS deployment completed"
+    
+    - name: Create GAS version
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        echo "📝 Creating new GAS version..."
+        npx clasp version "GAS Auto deployment $(date +'%Y-%m-%d %H:%M:%S')"
+    
+    - name: GAS deployment notification
+      if: always()
+      uses: dawidd6/action-send-mail@v5
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.MAIL_USERNAME }}
+        password: ${{ secrets.MAIL_PASSWORD }}
+        subject: "[GAS CI/CD] ${{ github.repository }} deployment ${{ job.status }}"
+        to: ${{ secrets.NOTIFICATION_EMAIL }}
+        from: GAS CI/CD Pipeline
+        body: |
+          🔧 Google Apps Script Deployment Report
+          
+          Repository: ${{ github.repository }}
+          Workflow: ${{ github.workflow }}
+          Status: ${{ job.status }}
+          Commit: ${{ github.sha }}
+          Triggered by: ${{ github.actor }}
+          Environment: Google Apps Script
+          
+          📊 詳細: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          このメールはGAS CI/CDシステムにより自動送信されています。

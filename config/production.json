@@ -1,0 +1,9 @@
+{
+  "API_URL": "https://api.production.example.com",
+  "API_TIMEOUT_MS": 3000,
+  "LOG_LEVEL": "WARN",
+  "FEATURE_FLAGS": {
+    "newSearch": false,
+    "betaFeatures": false
+  }
+}

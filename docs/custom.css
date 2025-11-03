@@ -1,0 +1,32 @@
+body {
+  font-family: 'Hiragino Sans', 'Meiryo', 'Noto Sans JP', sans-serif;
+}
+
+.tsd-page-title h1,
+.tsd-kind-module h4, 
+.tsd-panel h1, 
+.tsd-panel h2, 
+.tsd-panel h3, 
+.tsd-panel h4 {
+  font-family: 'Hiragino Sans', 'Meiryo', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+}
+
+code {
+  font-family: 'Source Code Pro', 'Courier New', Consolas, monospace;
+}
+
+pre {
+  background-color: #f5f5f5;
+  padding: 1em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.tsd-typography {
+  line-height: 1.6;
+}
+
+.tsd-comment {
+  margin-bottom: 1.5em;
+}

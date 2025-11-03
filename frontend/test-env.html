@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Environment Test</title>
+</head>
+<body>
+    <h1>Environment Variables Test</h1>
+    <div id="output"></div>
+    
+    <script>
+        async function testEnvironment() {
+            const output = document.getElementById('output');
+            
+            // 環境変数の表示
+            output.innerHTML += '<h2>Environment Variables:</h2>';
+            output.innerHTML += '<pre>VITE_USE_PRODUCTION_DATA: ' + (window.location.search.includes('VITE_USE_PRODUCTION_DATA=true') ? 'true' : 'unknown') + '</pre>';
+            output.innerHTML += '<pre>Expected API URL: https://2esje5au24.execute-api.ap-northeast-1.amazonaws.com/dev</pre>';
+            
+            // API直接テスト
+            output.innerHTML += '<h2>Direct API Test:</h2>';
+            try {
+                const response = await fetch('https://2esje5au24.execute-api.ap-northeast-1.amazonaws.com/dev/health');
+                const data = await response.json();
+                output.innerHTML += '<pre>Health API Response: ' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                const playersResponse = await fetch('https://2esje5au24.execute-api.ap-northeast-1.amazonaws.com/dev/players?type=highschool&year=2024&limit=3');
+                const playersData = await playersResponse.json();
+                output.innerHTML += '<pre>Players API Response (sample): ' + JSON.stringify({
+                    success: playersData.success,
+                    count: playersData.data ? playersData.data.length : 0,
+                    sample: playersData.data ? playersData.data[0] : null
+                }, null, 2) + '</pre>';
+                
+            } catch (error) {
+                output.innerHTML += '<pre style="color: red;">API Error: ' + error.message + '</pre>';
+            }
+        }
+        
+        testEnvironment();
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "entryPoints": ["src/main.ts", "src/scripts/*.ts"],
+  "out": "docs/api",
+  "name": "プロ野球候補選手データ収集・分析ツール API",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": ["コア機能", "スクレイピング", "ユーティリティ", "セキュリティ", "*"],
+  "readme": "none",
+  "exclude": ["**/node_modules/**", "**/*.test.ts"],
+  "theme": "default",
+  "customCss": "docs/custom.css",
+  "hideGenerator": false,
+  "searchInComments": true,
+  "plugin": ["typedoc-plugin-merge-modules", "typedoc-plugin-not-exported"]
+}

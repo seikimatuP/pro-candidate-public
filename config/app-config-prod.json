@@ -1,0 +1,70 @@
+{
+  "scraping": {
+    "timeout": 45000,
+    "retryCount": 5,
+    "userAgent": "Mozilla/5.0 (compatible; DataScraper/1.0; AWS Lambda)",
+    "headers": {
+      "Accept": "text/html,application/xhtml+xml",
+      "Accept-Language": "ja,en-US;q=0.7"
+    },
+    "rateLimit": {
+      "enabled": true,
+      "delayMs": 2000,
+      "maxConcurrency": 2
+    }
+  },
+  "processing": {
+    "batchSize": 200,
+    "maxConcurrency": 3,
+    "validation": {
+      "strictMode": true,
+      "skipInvalidRecords": true
+    },
+    "dataEnrichment": {
+      "enabled": false,
+      "geocoding": false
+    }
+  },
+  "storage": {
+    "s3": {
+      "multipartUpload": true,
+      "encryption": true,
+      "compressionLevel": 9
+    },
+    "backup": {
+      "enabled": true,
+      "retentionDays": 90,
+      "crossRegion": true
+    }
+  },
+  "notifications": {
+    "enabled": true,
+    "channels": ["email", "cloudwatch", "sns"],
+    "alertThresholds": {
+      "errorRate": 0.02,
+      "maxDuration": 600000,
+      "memoryUsage": 0.7
+    },
+    "emailSettings": {
+      "recipients": ["admin@pro-candidate.com", "alerts@pro-candidate.com"],
+      "template": "production"
+    }
+  },
+  "monitoring": {
+    "xray": {
+      "enabled": true,
+      "samplingRate": 0.05
+    },
+    "metrics": {
+      "customMetrics": true,
+      "detailedLogging": false
+    }
+  },
+  "features": {
+    "experimental": {
+      "parallelProcessing": false,
+      "mlEnhancement": false,
+      "advancedCaching": true
+    }
+  }
+}

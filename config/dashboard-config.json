@@ -1,0 +1,66 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["AWS/Lambda", "Invocations", { "stat": "Sum" }],
+          [".", "Errors", { "stat": "Sum", "yAxis": "right" }]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "region": "ap-northeast-1",
+        "title": "Lambda実行状況"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["AWS/Lambda", "Duration", { "stat": "Average" }],
+          ["...", { "stat": "Maximum" }]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "region": "ap-northeast-1",
+        "title": "Lambda実行時間"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [["AWS/Lambda", "ConcurrentExecutions", { "stat": "Maximum" }]],
+        "period": 300,
+        "stat": "Average",
+        "region": "ap-northeast-1",
+        "title": "同時実行数"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [["AWS/Billing", "EstimatedCharges", "Currency", "USD", { "stat": "Maximum" }]],
+        "period": 86400,
+        "stat": "Maximum",
+        "region": "us-east-1",
+        "title": "推定コスト (USD)"
+      }
+    }
+  ]
+}

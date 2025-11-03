@@ -1,0 +1,1 @@
+{ "Variables": { "S3_DATA_BUCKET": "pro-candidate-data-prod", "ENVIRONMENT": "prod" } }

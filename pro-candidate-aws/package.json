@@ -1,0 +1,40 @@
+{
+  "name": "pro-candidate-aws",
+  "version": "0.1.0",
+  "bin": {
+    "pro-candidate-aws": "bin/pro-candidate-aws.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "deploy:dev": "cdk deploy ProBaseballStack-dev --require-approval never --context stage=dev",
+    "deploy:prod": "cdk deploy ProBaseballStack-prod --require-approval never --context stage=prod",
+    "diff": "cdk diff",
+    "diff:dev": "cdk diff ProBaseballStack-dev --context stage=dev",
+    "diff:prod": "cdk diff ProBaseballStack-prod --context stage=prod",
+    "synth": "cdk synth",
+    "synth:dev": "cdk synth ProBaseballStack-dev --context stage=dev",
+    "synth:prod": "cdk synth ProBaseballStack-prod --context stage=prod",
+    "bootstrap": "cdk bootstrap",
+    "destroy:dev": "cdk destroy ProBaseballStack-dev --context stage=dev",
+    "destroy:prod": "cdk destroy ProBaseballStack-prod --context stage=prod"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "24.9.1",
+    "aws-cdk": "2.1031.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-cloudwatch-actions": "^1.203.0",
+    "@aws-sdk/client-ses": "^3.920.0",
+    "aws-cdk-lib": "2.221.0",
+    "aws-sdk": "^2.1692.0",
+    "constructs": "^10.0.0"
+  }
+}

@@ -1,0 +1,24 @@
+# Docker ignore for Playwright tests
+node_modules
+frontend/node_modules
+frontend/dist
+frontend/coverage
+dist
+coverage
+logs
+.git
+.github
+*.log
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+test-results
+playwright-report
+static-analysis/output
+sonar-project.properties
+.sonar
+pro-candidate-aws/node_modules
+pro-candidate-aws/cdk.out
+pro-candidate-aws/dist

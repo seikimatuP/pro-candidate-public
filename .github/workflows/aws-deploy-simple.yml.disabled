@@ -1,0 +1,98 @@
+name: AWS Deploy (Simple Auth)
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  deploy-simple:
+    name: Deploy to AWS (Access Key Auth)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd pro-candidate-aws && npm ci
+
+      - name: 🔍 Checking TypeScript compilation...
+        run: npx tsc --noEmit --skipLibCheck
+
+      - name: Configure AWS credentials (Simple)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Build CDK TypeScript
+        run: |
+          cd pro-candidate-aws
+          echo "🔨 Building TypeScript..."
+          npm run build
+
+      - name: CDK Bootstrap (if needed)
+        run: |
+          cd pro-candidate-aws
+          echo "🏗️ Checking CDK bootstrap status..."
+          npx cdk bootstrap --require-approval never || echo "Bootstrap already exists"
+
+      - name: CDK Deploy
+        run: |
+          cd pro-candidate-aws
+          ENV="${{ github.event.inputs.environment || 'dev' }}"
+          echo "🚀 Deploying to $ENV environment..."
+          npx cdk deploy ProBaseballStack-$ENV \
+            --require-approval never \
+            --outputs-file cdk-outputs.json \
+            --context stage=$ENV
+
+      - name: Health Check
+        run: |
+          echo "🏥 Performing health check..."
+          sleep 30
+
+          cd pro-candidate-aws
+          if [ -f cdk-outputs.json ]; then
+            cat cdk-outputs.json
+            
+            # Extract API URL
+            API_URL=$(cat cdk-outputs.json | grep -o '"ApiEndpoint":"[^"]*"' | cut -d'"' -f4 || echo "Not found")
+            
+            if [ "$API_URL" != "Not found" ] && [ "$API_URL" != "" ]; then
+              echo "Testing API endpoint: $API_URL"
+              curl -f "$API_URL/health" || echo "⚠️ Health check failed"
+            else
+              echo "⚠️ API URL not found in outputs"
+            fi
+          fi
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployment-outputs
+          path: |
+            pro-candidate-aws/cdk-outputs.json
+            pro-candidate-aws/cdk.out/
+          if-no-files-found: warn

@@ -1,0 +1,53 @@
+version: 2
+updates:
+  # Root package.json
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'npm'
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
+
+  # Frontend package.json
+  - package-ecosystem: 'npm'
+    directory: '/frontend'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'frontend'
+    commit-message:
+      prefix: 'deps(frontend)'
+      include: 'scope'
+
+  # AWS CDK package.json
+  - package-ecosystem: 'npm'
+    directory: '/pro-candidate-aws'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'aws'
+    commit-message:
+      prefix: 'deps(aws)'
+      include: 'scope'
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'ci-cd'
+      - 'github-actions'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
