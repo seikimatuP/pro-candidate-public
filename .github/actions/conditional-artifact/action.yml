@@ -1,0 +1,37 @@
+name: 'Conditional Artifact Upload'
+description: 'Upload artifacts only when necessary to avoid quota issues'
+
+inputs:
+  name:
+    description: 'Artifact name'
+    required: true
+  path:
+    description: 'Path to upload'
+    required: true
+  retention-days:
+    description: 'Number of days to retain artifact'
+    default: '1'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if artifact upload is enabled
+      id: check
+      shell: bash
+      run: |
+        # デフォルトでは失敗時のみアップロード
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || [[ "${{ env.FORCE_ARTIFACT_UPLOAD }}" == "true" ]]; then
+          echo "should_upload=true" >> $GITHUB_OUTPUT
+        else
+          echo "should_upload=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload artifact if enabled
+      if: steps.check.outputs.should_upload == 'true' || failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+        retention-days: ${{ inputs.retention-days }}
+        compression-level: 9
+        if-no-files-found: warn

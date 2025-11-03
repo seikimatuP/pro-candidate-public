@@ -1,0 +1,161 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+dist/
+*.js.map
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.dev
+.env.prod
+.env.e2e
+.env.e2e.dev
+.env.e2e.prod
+frontend/.env
+frontend/.env.dev
+frontend/.env.prod
+frontend/.env.e2e
+
+# Build files
+build/
+out/
+
+# Temporary files
+*.tmp
+*~
+
+# SonarQube関連
+.scannerwork/
+.sonar/
+
+coverage/*
+設計書.md
+
+.jest*
+reports/*
+
+*.backup
+
+# リファクタリング作業ファイル
+before_refactor.txt
+
+# AWS関連ファイル
+*.json
+!package*.json
+!jest*.json
+!tsconfig.json
+!config/*.json
+*.csv
+*.tar.gz
+*-scp.json
+*-template.json
+auto-shutdown-lambda.js
+cost-report-lambda.js
+lambda-cost-monitor/
+cloudtrail-bucket-policy.json
+
+# 開発用一時ファイル
+*.debug
+*.trace
+*.profile
+debug-*.js
+test-debug.js
+memory-test.js
+performance-test.js
+*-backup.*
+*.working
+*.draft
+
+# セキュリティ関連ファイル
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credential-report.csv
+credentials/
+secrets/
+private-keys/
+*.secret
+auth-*.json
+
+# プロジェクト固有の除外項目
+# 分析・レポート関連
+analysis-*.html
+analysis-*.json
+static-analysis/reports/
+performance-reports/
+quality-reports/
+*.analysis
+
+# ドキュメント生成関連
+docs/generated/
+typedoc/
+api-docs/
+
+# 検証・テスト用ファイル
+validation-*.json
+test-data-*.json
+mock-responses/
+fixtures-backup/
+
+# その他
+.versionrc
+.release-notes
+deployment-*.json
+
+# Playwright テスト関連
+test-results/
+playwright-report/
+.playwright/
+test-results*.xml
+test-results*.json
+
+# CDK・ビルド成果物
+cdk.out/
+dev-dist/
+nohup.out
+*.tsbuildinfo
+response*.json
+payload*.json
+
+
+RELEASE_NOTES.md
+RELEASE*.md
+
+# MCP Server directories (external repos)
+mcp-gemini-server/
+mcp-server-gemini/
+
+test-markitdown.py
+voicevox-test.js
+yahoo-test.js
+youtube-info.js
+
+screenshots
+tests/e2e/screenshots/dashboard-scraping-date.png
+.clasprc.json
+
+# ローカル開発ガイド（機密情報含むため公開リポジトリから除外）
+CLAUDE.md
+.claude/

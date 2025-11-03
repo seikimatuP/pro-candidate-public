@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロ野球志望届システム ER図</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .diagram-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .mermaid {
+            background: white;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .legend ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .legend li {
+            margin: 5px 0;
+        }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>プロ野球志望届システム ER図</h1>
+        
+        <div class="diagram-container">
+            <div class="mermaid">
+erDiagram
+    PLAYERS {
+        string id PK "一意識別子(UUID)"
+        string name "選手名"
+        string school "学校名"
+        string position "ポジション"
+        string prefecture "都道府県"
+        string type "タイプ(highschool/university)"
+        int year "年度"
+        boolean isDraftEligible "ドラフト対象可否"
+        datetime createdAt "作成日時"
+        datetime updatedAt "更新日時"
+    }
+
+    SCHOOLS {
+        string id PK "学校ID"
+        string name "学校名"
+        string prefecture "都道府県"
+        string type "学校種別(high_school/university)"
+        string region "地域"
+        datetime createdAt "作成日時"
+        datetime updatedAt "更新日時"
+    }
+
+    SCRAPING_HISTORY {
+        string id PK "履歴ID"
+        string environment "実行環境(dev/prod)"
+        string type "スクレイピングタイプ"
+        int year "対象年度"
+        int playersCount "取得選手数"
+        int newPlayers "新規選手数"
+        int updatedPlayers "更新選手数"
+        int deletedPlayers "削除選手数"
+        datetime executionTime "実行時間"
+        string status "実行ステータス"
+        json statistics "統計情報"
+        datetime createdAt "作成日時"
+    }
+
+    PLAYER_STATISTICS {
+        string id PK "統計ID"
+        int year "年度"
+        string type "選手タイプ"
+        string groupBy "グループ化基準"
+        string groupValue "グループ値"
+        int count "選手数"
+        json details "詳細統計"
+        datetime generatedAt "生成日時"
+        int ttl "TTL(秒)"
+    }
+
+    S3_DATA_FILES {
+        string bucket "S3バケット名"
+        string key PK "S3オブジェクトキー"
+        string contentType "コンテンツタイプ"
+        int size "ファイルサイズ"
+        string etag "ETag"
+        datetime lastModified "最終更新日時"
+        json metadata "メタデータ"
+    }
+
+    AWS_LAMBDA_LOGS {
+        string requestId PK "リクエストID"
+        string functionName "関数名"
+        string environment "実行環境"
+        string eventType "イベントタイプ"
+        int duration "実行時間(ms)"
+        int memoryUsed "使用メモリ(MB)"
+        string status "実行ステータス"
+        json errorDetails "エラー詳細"
+        datetime timestamp "実行日時"
+    }
+
+    API_REQUESTS {
+        string id PK "リクエストID"
+        string endpoint "APIエンドポイント"
+        string method "HTTPメソッド"
+        string environment "実行環境"
+        int statusCode "ステータスコード"
+        int responseTime "レスポンス時間(ms)"
+        string userAgent "ユーザーエージェント"
+        string clientIP "クライアントIP"
+        datetime timestamp "リクエスト日時"
+    }
+
+    %% リレーションシップ
+    PLAYERS ||--o{ SCHOOLS : "belongs_to"
+    PLAYERS ||--o{ SCRAPING_HISTORY : "scraped_in"
+    PLAYERS ||--o{ PLAYER_STATISTICS : "included_in"
+    SCRAPING_HISTORY ||--o{ S3_DATA_FILES : "generates"
+    AWS_LAMBDA_LOGS ||--o{ SCRAPING_HISTORY : "logs"
+    API_REQUESTS ||--o{ PLAYERS : "requests"
+    S3_DATA_FILES ||--o{ PLAYER_STATISTICS : "cached_as"
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>📊 ER図の読み方</h3>
+            <ul>
+                <li><strong>エンティティ (四角形)</strong>: データベースのテーブルや主要なデータ構造を表します</li>
+                <li><strong>属性 (エンティティ内のフィールド)</strong>: 各エンティティが持つデータ項目です</li>
+                <li><strong>PK (Primary Key)</strong>: 各レコードを一意に識別するキーです</li>
+                <li><strong>リレーションシップ (線)</strong>: エンティティ間の関係を示します</li>
+                <li><strong>||--o{</strong>: 一対多の関係（1つのレコードが複数のレコードと関連）</li>
+            </ul>
+
+            <h3>🏗️ システム構成</h3>
+            <ul>
+                <li><strong>PLAYERS</strong>: 高校生・大学生選手の基本情報</li>
+                <li><strong>SCHOOLS</strong>: 学校マスターデータ</li>
+                <li><strong>SCRAPING_HISTORY</strong>: データ収集の履歴と統計</li>
+                <li><strong>PLAYER_STATISTICS</strong>: キャッシュされた統計情報</li>
+                <li><strong>S3_DATA_FILES</strong>: AWSクラウドストレージ管理</li>
+                <li><strong>AWS_LAMBDA_LOGS</strong>: サーバーレス関数実行ログ</li>
+                <li><strong>API_REQUESTS</strong>: API利用状況の記録</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>

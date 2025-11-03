@@ -1,0 +1,77 @@
+name: Remove Old Artifacts
+
+on:
+  schedule:
+    # 毎日午前2時（UTC）に実行
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      days_to_keep:
+        description: 'Number of days to keep artifacts'
+        required: false
+        default: '7'
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup-artifacts:
+    name: Remove Old Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Remove old artifacts
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const daysToKeep = ${{ github.event.inputs.days_to_keep || 7 }};
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+
+            console.log(`🧹 Removing artifacts older than ${daysToKeep} days (before ${cutoffDate.toISOString()})`);
+
+            let totalDeleted = 0;
+            let totalSizeMB = 0;
+
+            // Get all artifacts
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            console.log(`📦 Found ${artifacts.length} total artifacts`);
+
+            for (const artifact of artifacts) {
+              const createdAt = new Date(artifact.created_at);
+              
+              if (createdAt < cutoffDate) {
+                console.log(`🗑️ Deleting artifact: ${artifact.name} (${artifact.id}) - ${(artifact.size_in_bytes / 1024 / 1024).toFixed(2)}MB - Created: ${createdAt.toISOString()}`);
+                
+                try {
+                  await github.rest.actions.deleteArtifact({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    artifact_id: artifact.id
+                  });
+                  
+                  totalDeleted++;
+                  totalSizeMB += artifact.size_in_bytes / 1024 / 1024;
+                } catch (error) {
+                  console.error(`❌ Failed to delete artifact ${artifact.id}: ${error.message}`);
+                }
+              } else {
+                console.log(`✅ Keeping artifact: ${artifact.name} - Created: ${createdAt.toISOString()}`);
+              }
+            }
+
+            console.log(`🎯 Cleanup completed:`);
+            console.log(`   - Deleted: ${totalDeleted} artifacts`);
+            console.log(`   - Freed space: ${totalSizeMB.toFixed(2)}MB`);
+            console.log(`   - Remaining: ${artifacts.length - totalDeleted} artifacts`);
+
+            if (totalDeleted === 0) {
+              console.log(`✨ No artifacts to clean up!`);
+            }

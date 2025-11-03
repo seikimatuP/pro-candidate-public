@@ -1,0 +1,563 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Architecture Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            padding: 40px;
+            background: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #232F3E;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 3px solid #FF9900;
+            padding-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #FF9900;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .info-box h2 {
+            color: #232F3E;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .info-card h3 {
+            color: #FF9900;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #FF9900;
+            padding-bottom: 5px;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-card li {
+            padding: 6px 0;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-card li:before {
+            content: "▸ ";
+            color: #FF9900;
+            font-weight: bold;
+        }
+
+        .layer-section {
+            margin-bottom: 40px;
+        }
+
+        .layer-title {
+            background: linear-gradient(135deg, #232F3E 0%, #3f5875 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .component {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .component-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .component-icon {
+            width: 50px;
+            height: 50px;
+            background: #FF9900;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .component-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #232F3E;
+        }
+
+        .component-details {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .flow-diagram {
+            background: #f0f8ff;
+            border: 2px dashed #0066CC;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #0066CC;
+            font-weight: bold;
+        }
+
+        .legend {
+            background: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .legend h3 {
+            color: #232F3E;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 40px;
+            height: 4px;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .info-grid {
+                page-break-inside: avoid;
+            }
+            .component {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>プロ野球志望届システム</h1>
+        <h1>AWS サーバレスアーキテクチャ</h1>
+        <div class="subtitle">環境: dev / prod（完全分離構成） | バージョン: v1.4.0</div>
+
+        <div class="info-box">
+            <h2>📊 システム概要</h2>
+            <p>日本の高校生・大学生のプロ野球志望届データを収集・分析する AWS サーバーレスアプリケーション。完全無料枠内での運用を実現し、スケーラブルで低コストな運用を提供します。</p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>💰 運用コスト</h3>
+                <ul>
+                    <li>月額: $0.00 - $0.50</li>
+                    <li>完全無料枠内運用</li>
+                    <li>自動スケーリング対応</li>
+                    <li>コスト監視アラート設定済み</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>🔧 主要技術</h3>
+                <ul>
+                    <li>Lambda (Node.js 18.x)</li>
+                    <li>S3 + JSON ベースストレージ</li>
+                    <li>CloudFront CDN配信</li>
+                    <li>EventBridge スケジューラー</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>🌐 環境構成</h3>
+                <ul>
+                    <li>dev: 開発・テスト環境</li>
+                    <li>prod: 本番運用環境</li>
+                    <li>完全分離バケット構成</li>
+                    <li>独立認証設定</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>✅ 品質保証</h3>
+                <ul>
+                    <li>E2Eテスト: 61件</li>
+                    <li>TypeScript 厳密型チェック</li>
+                    <li>ESLint + SonarQube</li>
+                    <li>自動デプロイメント</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">🌐 レイヤー1: 外部アクセス層</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">👤</div>
+                    <div class="component-name">エンドユーザー</div>
+                </div>
+                <div class="component-details">
+                    ユーザータイプ: 管理者・開発者・閲覧者<br>
+                    アクセス方法: Webブラウザ (Chrome, Firefox, Safari, Edge対応)<br>
+                    認証: AWS Cognito (dev/prod環境別)
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-diagram">
+            ユーザー → HTTPS → CloudFront → S3 Website (React SPA)
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">☁️ レイヤー2: CDN / フロントエンド配信層</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">🌐</div>
+                    <div class="component-name">CloudFront (CDN)</div>
+                </div>
+                <div class="component-details">
+                    機能: エッジロケーション配信・HTTPS強制・カスタムドメイン対応<br>
+                    キャッシュ戦略: 静的アセット(31536000s)・HTML/JS(300s)<br>
+                    配信: グローバルエッジロケーション
+                </div>
+            </div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">📦</div>
+                    <div class="component-name">S3 Bucket (Static Website)</div>
+                </div>
+                <div class="component-details">
+                    コンテンツ: React SPA・PWA対応・Service Worker<br>
+                    SPA Routing: 404 → index.html リダイレクト設定<br>
+                    暗号化: AES-256
+                </div>
+            </div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">🔐</div>
+                    <div class="component-name">AWS Cognito (認証)</div>
+                </div>
+                <div class="component-details">
+                    機能: ユーザー認証・セッション管理・環境別分離<br>
+                    dev環境: UserPool ap-northeast-1_yRTv0CRfz<br>
+                    prod環境: UserPool ap-northeast-1_5m7pnXzt8
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-diagram">
+            CloudFront → API Gateway → Lambda → S3 Data
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">🔌 レイヤー3: API Gateway層</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">⚡</div>
+                    <div class="component-name">API Gateway (REST API)</div>
+                </div>
+                <div class="component-details">
+                    <strong>エンドポイント:</strong><br>
+                    • GET /health - ヘルスチェック<br>
+                    • GET /players - 選手データ取得<br>
+                    • GET /years/available - 利用可能年度取得<br>
+                    • POST /scraping/trigger - スクレイピング実行<br>
+                    • GET /scraping/history - 実行履歴取得<br>
+                    <br>
+                    <strong>機能:</strong> CORS有効化・認証統合・レート制限・リクエスト検証・ログ記録
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">⚙️ レイヤー4: Lambda / サーバレス処理層</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">λ</div>
+                    <div class="component-name">Lambda: API処理</div>
+                </div>
+                <div class="component-details">
+                    ランタイム: Node.js 18.x<br>
+                    メモリ: 128MB<br>
+                    タイムアウト: 30秒<br>
+                    機能: S3データ読み取り・レスポンス返却・エラーハンドリング
+                </div>
+            </div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">λ</div>
+                    <div class="component-name">Lambda: スクレイピング処理</div>
+                </div>
+                <div class="component-details">
+                    ランタイム: Node.js 18.x<br>
+                    メモリ: 512MB<br>
+                    タイムアウト: 15分<br>
+                    機能: NPBサイトスクレイピング・データ検証・S3保存・履歴記録・メール通知<br>
+                    <br>
+                    <strong>v1.4.0新機能: 実行制限ロジック</strong><br>
+                    • Frontend手動実行: 1日1回制限<br>
+                    • EventBridge定期実行: 制限なし<br>
+                    • S3履歴管理: execution-tracking/last-execution.json
+                </div>
+            </div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">λ</div>
+                    <div class="component-name">Lambda: SPA Custom Resource</div>
+                </div>
+                <div class="component-details">
+                    実行タイミング: CDKデプロイ時<br>
+                    機能: S3 Website設定自動適用・SPA Routing対応（404→index.html）<br>
+                    Infrastructure as Code: 手動設定不要
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">⏰ レイヤー5: EventBridge / スケジューラー層</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">⏰</div>
+                    <div class="component-name">EventBridge Rule</div>
+                </div>
+                <div class="component-details">
+                    <strong>prod環境:</strong> 17:30 JST 毎日実行<br>
+                    <strong>dev環境:</strong> 5分間隔（テスト用）<br>
+                    ターゲット: Lambda スクレイピング関数<br>
+                    イベントペイロード: {type: 'both', year: 2025, source: 'EventBridge'}
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">💾 レイヤー6: データストレージ層</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">📦</div>
+                    <div class="component-name">S3: Data Bucket</div>
+                </div>
+                <div class="component-details">
+                    <strong>ディレクトリ構造:</strong><br>
+                    /players/highschool/2024.json, 2025.json<br>
+                    /players/university/2024.json, 2025.json<br>
+                    /index.json<br>
+                    /execution-tracking/last-execution.json<br>
+                    /scraping-history/[timestamp].json<br>
+                    <br>
+                    機能: AES-256暗号化・ライフサイクル管理・バージョニング・環境別分離・TTLキャッシュ
+                </div>
+            </div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">⚙️</div>
+                    <div class="component-name">S3DataService (TypeScript SDK)</div>
+                </div>
+                <div class="component-details">
+                    主要機能:<br>
+                    • savePlayerData() - 選手データ保存<br>
+                    • searchPlayers() - 高速検索<br>
+                    • getStatistics() - 統計情報生成<br>
+                    • TTLベースキャッシュ管理（5-15分）<br>
+                    • 並列データ読み込み<br>
+                    • エラーハンドリング
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">📊 レイヤー7: 監視・通知・セキュリティ層</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">📈</div>
+                    <div class="component-name">CloudWatch</div>
+                </div>
+                <div class="component-details">
+                    監視項目:<br>
+                    • Lambda実行時間・エラー率<br>
+                    • API Gateway 4xx/5xx エラー<br>
+                    • CloudFront配信状況<br>
+                    • 月額コスト（$0.50閾値アラート）<br>
+                    • スクレイピング成功率
+                </div>
+            </div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">📧</div>
+                    <div class="component-name">AWS SES (Email通知)</div>
+                </div>
+                <div class="component-details">
+                    メール通知:<br>
+                    • スクレイピング完了通知<br>
+                    • 新規選手検出アラート<br>
+                    • 前日比差分表示<br>
+                    • エラー通知
+                </div>
+            </div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">🔐</div>
+                    <div class="component-name">IAM (権限管理)</div>
+                </div>
+                <div class="component-details">
+                    セキュリティ原則:<br>
+                    • 最小権限の原則<br>
+                    • S3特定パス制限<br>
+                    • Lambda実行ロール分離<br>
+                    • 環境別IAMポリシー
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-section">
+            <div class="layer-title">🚀 CI/CD / デプロイメント</div>
+
+            <div class="component">
+                <div class="component-header">
+                    <div class="component-icon">⚙️</div>
+                    <div class="component-name">GitHub Actions</div>
+                </div>
+                <div class="component-details">
+                    <strong>デプロイフロー:</strong><br>
+                    1. git push develop → dev環境自動デプロイ<br>
+                    2. git tag v1.x.x → prod環境自動デプロイ<br>
+                    3. CDK Deploy → インフラ更新<br>
+                    4. Health Check → 動作確認<br>
+                    5. E2E Tests → 品質保証<br>
+                    <br>
+                    <strong>品質ゲート:</strong><br>
+                    TypeScript Compile・ESLint・E2E Tests (61)・Performance Tests・Security Scan
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>📖 凡例</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #0066CC;"></div>
+                    HTTPS通信
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #D05C17;"></div>
+                    Lambda実行
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #277116;"></div>
+                    データ読み書き
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #BC1356;"></div>
+                    スケジュール実行
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #666; opacity: 0.5;"></div>
+                    ログ・監視
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #C7131F; opacity: 0.5;"></div>
+                    認証連携
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>作成日:</strong> 2025-09-25</p>
+            <p><strong>バージョン:</strong> v1.4.0</p>
+            <p><strong>作成者:</strong> Claude Code</p>
+            <p style="margin-top: 10px; color: #FF9900; font-weight: bold;">
+                ※ v1.4.0対応：EventBridge定期実行を1日1回制限から除外
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<mxfile host="app.diagrams.net" modified="2025-06-05T10:30:00.000Z" agent="5.0" etag="architecture-v1" version="24.7.17" type="device">
+  <diagram name="AWS Architecture" id="aws-architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <mxCell id="title" value="プロ野球志望届データ収集ツール - AWS サーバーレス アーキテクチャ" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="600" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws-cloud" value="AWS Cloud (ap-northeast-1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f8ff;strokeColor=#0066cc;strokeWidth=2;verticalAlign=top;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="70" width="1100" height="780" as="geometry" />
+        </mxCell>
+
+        <mxCell id="frontend-section" value="Frontend Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="110" width="350" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s3-frontend" value="S3 Bucket&lt;br&gt;pro-candidate-frontend-dev&lt;br&gt;Static Website Hosting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#2E7D32;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="140" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="react-app" value="React 19.1.0 + TypeScript&lt;br&gt;Material-UI v7.1.1&lt;br&gt;Redux Toolkit + RTK Query" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#F57C00;fontColor=white;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="140" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="frontend-url" value="URL: http://pro-candidate-frontend-dev.s3-website-ap-northeast-1.amazonaws.com" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#0066CC;" vertex="1" parent="1">
+          <mxGeometry x="100" y="210" width="310" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api-section" value="API Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="480" y="110" width="300" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api-gateway" value="API Gateway&lt;br&gt;REST API&lt;br&gt;3 Endpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="500" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lambda-api" value="Lambda&lt;br&gt;pro-baseball-api-dev&lt;br&gt;Node.js 18.x" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF5722;strokeColor=#D84315;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="640" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api-url" value="API: https://2esje5au24.execute-api.ap-northeast-1.amazonaws.com/dev/" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#0066CC;" vertex="1" parent="1">
+          <mxGeometry x="500" y="210" width="260" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="backend-section" value="Backend Processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="110" width="280" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lambda-scraping" value="Lambda&lt;br&gt;pro-baseball-scraping-dev&lt;br&gt;Data Collection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;strokeColor=#C62828;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="840" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lambda-processing" value="Lambda&lt;br&gt;pro-baseball-processing-dev&lt;br&gt;Data Processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E91E63;strokeColor=#AD1457;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="980" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="data-section" value="Data Storage (S3 + JSON)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="330" width="520" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s3-data" value="S3 Bucket&lt;br&gt;pro-candidate-data-dev&lt;br&gt;JSON Data Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#2E7D32;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="360" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="data-structure" value="Data Structure:&lt;br&gt;• /players/highschool/2025.json&lt;br&gt;• /players/university/2025.json&lt;br&gt;• /players/combined/latest.json&lt;br&gt;• Metadata + Index files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CDDC39;strokeColor=#689F38;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="270" y="360" width="300" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="data-benefits" value="Benefits:&lt;br&gt;• 99%+ Cost Reduction vs DynamoDB&lt;br&gt;• Simple JSON Structure&lt;br&gt;• Fast JavaScript Processing&lt;br&gt;• AWS Free Tier Optimized" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;strokeColor=#F57C00;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="100" y="440" width="470" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="security-section" value="Security and Monitoring" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#ef6c00;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="330" width="460" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="iam" value="IAM&lt;br&gt;Roles and Policies&lt;br&gt;Least Privilege" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#F57C00;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="660" y="360" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cloudwatch" value="CloudWatch&lt;br&gt;Monitoring and Logs&lt;br&gt;Cost Tracking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF6F00;strokeColor=#E65100;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="360" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cost-info" value="Cost Management:&lt;br&gt;• Monthly Cost: $0.49&lt;br&gt;• Budget Alert: $1.00&lt;br&gt;• Free Tier: 85% usage&lt;br&gt;• Anomaly Detection: Active" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEB3B;strokeColor=#F9A825;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="940" y="360" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="infra-section" value="Infrastructure as Code (AWS CDK)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#424242;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="570" width="1020" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cdk" value="AWS CDK&lt;br&gt;ProBaseballStack-dev&lt;br&gt;TypeScript" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#607D8B;strokeColor=#37474F;fontColor=white;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="constructs" value="CDK Constructs:&lt;br&gt;• SimpleFrontendConstruct (S3 Static Web)&lt;br&gt;• LambdaConstruct (3 Functions)&lt;br&gt;• ApiGatewayConstruct (REST API)&lt;br&gt;• S3Construct (Data Storage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#90A4AE;strokeColor=#546E7A;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="250" y="600" width="300" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="deployment" value="Deployment Status:&lt;br&gt;✅ All Infrastructure Deployed&lt;br&gt;✅ Frontend: S3 Static Hosting&lt;br&gt;✅ API: 3 Endpoints Active&lt;br&gt;✅ Data: S3+JSON Storage Ready" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="580" y="600" width="220" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arch-benefits" value="Architecture Benefits:&lt;br&gt;• Serverless Scalability&lt;br&gt;• Sub-second Response Times&lt;br&gt;• Zero Database Maintenance&lt;br&gt;• AWS Free Tier Optimized" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#8E24AA;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="830" y="600" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="external" value="External Data Sources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#d32f2f;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="750" width="300" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="npb-sources" value="NPB Official Website:&lt;br&gt;• High School Players Data&lt;br&gt;• University Players Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#F44336;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="100" y="780" width="260" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="users" value="User Access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1976d2;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="750" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="browsers" value="Web Browsers:&lt;br&gt;• Desktop and Mobile&lt;br&gt;• PWA Ready" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#2196F3;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="440" y="780" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="status" value="Current Status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#4caf50;strokeWidth=2;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="660" y="750" width="300" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="status-details" value="Phase 4 Complete (100%):&lt;br&gt;✅ Frontend deployed to S3&lt;br&gt;✅ API Gateway + Lambda active&lt;br&gt;✅ Ready for Phase 5 testing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="680" y="780" width="260" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arrow1" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#2196F3;" edge="1" parent="1" source="browsers" target="s3-frontend">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="300" y="400" as="sourcePoint" />
+            <mxPoint x="350" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow2" value="HTTPS API Calls" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#FF5722;" edge="1" parent="1" source="react-app" target="api-gateway">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow3" value="Lambda Integration" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#9C27B0;" edge="1" parent="1" source="api-gateway" target="lambda-api">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="300" as="sourcePoint" />
+            <mxPoint x="650" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow4" value="S3 SDK" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#4CAF50;" edge="1" parent="1" source="lambda-api" target="s3-data">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="400" as="sourcePoint" />
+            <mxPoint x="350" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow5" value="Data Scraping" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#F44336;" edge="1" parent="1" source="lambda-scraping" target="npb-sources">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="300" as="sourcePoint" />
+            <mxPoint x="400" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow6" value="Store JSON" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#4CAF50;" edge="1" parent="1" source="lambda-scraping" target="s3-data">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="400" as="sourcePoint" />
+            <mxPoint x="350" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,390 @@
+# Implementation Plan
+
+このドキュメントは、AWS環境の既存機能をリバースエンジニアリングした結果を基に、同等のシステムを再構築する場合の実装タスクリストです。各タスクは段階的に実装可能で、テスト駆動開発を重視しています。
+
+## タスク概要
+
+既存のAWSインフラストラクチャを再現するための実装タスクを、以下の順序で実行します：
+
+1. 基盤インフラ構築（S3、IAM）
+2. Lambda関数実装（スクレイピング、API、データ処理）
+3. API Gateway構築
+4. 認証システム（Cognito）
+5. フロントエンド配信（CloudFront）
+6. 監視・アラート
+7. CI/CD自動化
+8. 統合テスト・検証
+
+---
+
+## Implementation Tasks
+
+- [x] 1. AWS CDK基盤セットアップ
+  - CDKプロジェクト初期化（TypeScript）
+  - 環境別設定ファイル作成（dev/prod）
+  - CDK Constructパターン実装
+  - _Requirements: 9.1, 9.2, 8.1_
+
+- [x] 2. S3データストレージ構築
+  - [x] 2.1 S3Construct実装
+    - 環境別バケット作成（`pro-candidate-data-{stage}`）
+    - AES-256暗号化設定
+    - バージョニング有効化
+    - パブリックアクセスブロック設定
+    - _Requirements: 1.1, 1.5, 1.6_
+  - [x] 2.2 ライフサイクルポリシー設定
+    - 旧バージョン30日後削除
+    - キャッシュ7日後削除
+    - ログ14日後削除
+    - 一時データ1日後削除
+    - IA移行30日後、Glacier移行90日後
+    - _Requirements: 1.7_
+  - [x] 2.3 CORS設定
+    - GET/PUT/POSTメソッド許可
+    - オリジン設定（本番では制限）
+    - _Requirements: 3.11_
+
+- [x] 3. Lambda実行ロールとIAM権限設定
+  - [x] 3.1 Lambda実行ロール作成
+    - 基本実行ポリシー付与
+    - X-Ray書き込み権限
+    - _Requirements: 9.1_
+  - [x] 3.2 S3アクセス権限設定
+    - 特定パスのみアクセス許可（players/_, config/_, scraping-history/\*）
+    - ListBucket権限（特定プレフィックス）
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.3 SSM Parameter Store権限
+    - GetParameter権限
+    - 特定パラメータパスのみアクセス
+    - _Requirements: 12.1, 12.2_
+  - [x] 3.4 SES・CloudWatch・Lambda Invoke権限
+    - SES送信権限
+    - CloudWatchメトリクス・ログ権限
+    - Lambda関数呼び出し権限
+    - _Requirements: 6.6_
+
+- [x] 4. スクレイピングLambda関数実装
+  - [x] 4.1 基本構造実装
+    - Lambda handlerエントリーポイント
+    - 環境変数読み込み
+    - ロギング設定
+    - _Requirements: 2.1, 2.8_
+  - [x] 4.2 実行制限チェック機能
+    - prod環境1日1回制限（Frontend実行時のみ）
+    - EventBridge実行は制限なし
+    - 最終実行日取得・更新
+    - _Requirements: 2.9, 2.10_
+  - [x] 4.3 設定管理機能
+    - S3から設定ファイル読み込み
+    - 環境変数フォールバック
+    - ConfigManager実装
+    - _Requirements: 12.1, 12.2, 12.3, 12.4_
+  - [x] 4.4 高校生データスクレイピング
+    - HTML取得（fetch）
+    - cheerioによる解析
+    - 2番目のテーブル抽出
+    - ※印選手除外
+    - データ変換・バリデーション
+    - _Requirements: 2.2, 2.5, 2.7_
+  - [x] 4.5 大学生データスクレイピング
+    - HTML取得（fetch）
+    - cheerioによる解析
+    - 最初のテーブル抽出
+    - ※印選手除外
+    - データ変換・バリデーション
+    - _Requirements: 2.3, 2.6, 2.7_
+  - [x] 4.6 S3データ保存機能
+    - JSON形式でデータ保存
+    - メタデータ付与
+    - UUID生成（衝突回避）
+    - _Requirements: 2.8, 1.2, 1.3, 1.4_
+  - [x] 4.7 履歴記録機能
+    - 正常終了時のみ記録
+    - 差分計算（新規・削除選手）
+    - 環境別履歴保存
+    - _Requirements: 2.11, 2.12, 11.1, 11.2, 11.3, 11.4_
+  - [x] 4.8 メール通知機能
+    - EventBridge実行時のみ送信
+    - 新規選手情報含む
+    - SES統合
+    - _Requirements: 6.6, 6.7_
+  - [x]\* 4.9 スクレイピング関数ユニットテスト
+    - HTML解析テスト
+    - データ変換テスト
+    - バリデーションテスト
+    - _Requirements: 2.1-2.12_
+
+- [x] 5. API Lambda関数実装
+  - [x] 5.1 基本構造とルーティング
+    - Lambda handlerエントリーポイント
+    - パスルーティング実装
+    - CORSヘッダー設定
+    - _Requirements: 3.1, 3.11, 3.12_
+  - [x] 5.2 /health エンドポイント
+    - システム稼働状況返却
+    - 環境情報含む
+    - _Requirements: 3.1_
+  - [x] 5.3 /players エンドポイント
+    - 全選手データ取得
+    - 年度・タイプ指定取得
+    - 統合データ取得
+    - S3からデータ読み込み
+    - _Requirements: 3.2, 3.3, 3.4, 3.5_
+  - [x] 5.4 /years/available エンドポイント
+    - S3ファイル一覧取得
+    - 年度リスト生成（2024-現在年）
+    - デフォルト年度判定
+    - _Requirements: 3.6_
+  - [x] 5.5 /schools エンドポイント
+    - 学校一覧取得
+    - _Requirements: 3.7_
+  - [x] 5.6 /statistics エンドポイント
+    - タイプ別・年度別・ポジション別・都道府県別集計
+    - _Requirements: 3.8_
+  - [x] 5.7 /scraping/trigger エンドポイント
+    - POSTリクエスト処理
+    - Lambda関数呼び出し
+    - 環境別関数名生成
+    - 同期実行・結果返却
+    - _Requirements: 3.9_
+  - [x] 5.8 /scraping/history エンドポイント
+    - 履歴データ取得
+    - 環境別フィルタリング
+    - ページネーション（limit/offset）
+    - _Requirements: 3.10, 11.5, 11.6_
+  - [x]\* 5.9 API関数ユニットテスト
+    - 各エンドポイントテスト
+    - エラーハンドリングテスト
+    - _Requirements: 3.1-3.12_
+
+- [x] 6. データ処理Lambda関数実装
+  - [x] 6.1 基本構造実装
+    - Lambda handlerエントリーポイント
+    - データ変換ロジック
+    - _Requirements: 2.8_
+  - [x] 6.2 統計生成機能
+    - Map集計最適化
+    - キャッシュ対応
+    - _Requirements: 3.8_
+  - [x]\* 6.3 データ処理関数ユニットテスト
+    - データ変換テスト
+    - 統計生成テスト
+    - _Requirements: 2.8, 3.8_
+
+- [x] 7. API Gateway構築
+  - [x] 7.1 ApiGatewayConstruct実装
+    - REST API作成
+    - X-Rayトレーシング有効化
+    - CORS設定
+    - _Requirements: 3.11, 9.5_
+  - [x] 7.2 リソース・メソッド定義
+    - 10個のエンドポイント作成
+    - Lambda統合設定
+    - プロキシリソース追加
+    - _Requirements: 3.1-3.10_
+  - [x] 7.3 Gateway Responses設定
+    - UnauthorizedResponse（401）
+    - ForbiddenResponse（403）
+    - CORSヘッダー設定
+    - _Requirements: 3.11_
+  - [x]\* 7.4 API Gateway統合テスト
+    - 各エンドポイント疎通確認
+    - CORSテスト
+    - _Requirements: 3.1-3.12_
+
+- [x] 8. Cognito認証システム構築
+  - [x] 8.1 CognitoConstruct実装
+    - User Pool作成
+    - User Pool Client作成
+    - User Pool Domain作成
+    - _Requirements: 4.1, 4.3, 9.6_
+  - [x] 8.2 User Pool設定
+    - サインイン設定（email/username）
+    - セルフサインアップ有効化
+    - パスワードポリシー設定
+    - MFA設定（OPTIONAL）
+    - _Requirements: 4.2, 4.6_
+  - [x] 8.3 OAuth設定
+    - 認証フロー設定
+    - コールバックURL設定
+    - スコープ設定
+    - _Requirements: 4.3_
+  - [x] 8.4 API Gateway認証統合
+    - Cognito Authorizer作成
+    - prod環境のみ有効化
+    - _Requirements: 4.1, 4.5_
+  - [x]\* 8.5 認証フローテスト
+    - ログイン・ログアウトテスト
+    - トークン検証テスト
+    - _Requirements: 4.1-4.6_
+
+- [x] 9. フロントエンド配信構築
+  - [x] 9.1 SimpleFrontendConstruct実装
+    - S3バケット作成（静的ホスティング）
+    - Website設定
+    - _Requirements: 5.1_
+  - [x] 9.2 CloudFrontConstruct実装
+    - Distribution作成
+    - Origin Access Identity設定
+    - S3読み取り権限付与
+    - _Requirements: 5.2, 5.7_
+  - [x] 9.3 HTTPS・SPA設定
+    - HTTPS自動リダイレクト
+    - エラーレスポンス（404→index.html）
+    - キャッシュポリシー設定
+    - _Requirements: 5.3, 5.4, 5.5, 5.6_
+  - [x]\* 9.4 フロントエンド配信テスト
+    - HTTPS配信確認
+    - SPAルーティング確認
+    - キャッシュ動作確認
+    - _Requirements: 5.1-5.7_
+
+- [x] 10. 監視・アラート構築
+  - [x] 10.1 MonitoringConstruct実装
+    - SNS Topic作成
+    - Email Subscription設定
+    - _Requirements: 6.1, 6.2, 9.8_
+  - [x] 10.2 CloudWatch Dashboard作成
+    - Lambda実行状況ウィジェット
+    - Lambda実行時間ウィジェット
+    - 同時実行数ウィジェット
+    - 推定コストウィジェット
+    - _Requirements: 6.3_
+  - [x] 10.3 CloudWatch Alarms設定
+    - Critical Lambda Errorsアラーム
+    - Cost Alarmアラーム
+    - Free Tier Usage Alarmアラーム
+    - SNS通知設定
+    - _Requirements: 6.2, 6.4, 7.6_
+  - [x] 10.4 X-Rayトレーシング設定
+    - Lambda関数でX-Ray有効化
+    - API GatewayでX-Ray有効化
+    - _Requirements: 6.5_
+  - [x]\* 10.5 監視システムテスト
+    - アラーム発火テスト
+    - メトリクス記録確認
+    - _Requirements: 6.1-6.7_
+
+- [x] 11. EventBridge定期実行設定
+  - [x] 11.1 本番スケジュールルール作成
+    - cron式設定（平日17:30 JST）
+    - Lambda関数ターゲット設定
+    - リトライ設定
+    - _Requirements: 2.10_
+  - [x] 11.2 dev環境テストルール作成
+    - 5分間隔ルール（デフォルト無効）
+    - 今日18:00ワンタイムルール（デフォルト無効）
+    - _Requirements: 2.10_
+  - [x]\* 11.3 EventBridge実行テスト
+    - 手動トリガーテスト
+    - スケジュール実行確認
+    - _Requirements: 2.10_
+
+- [x] 12. コスト最適化設定
+  - [x] 12.1 CostOptimizedConstruct実装
+    - コスト監視アラーム作成
+    - 環境別閾値設定（$0.50）
+    - _Requirements: 7.4, 7.6_
+  - [x] 12.2 Lambda最適化設定
+    - メモリサイズ最適化（Scraping: 512MB、API/Data: 128MB）
+    - タイムアウト設定
+    - _Requirements: 7.1_
+  - [x] 12.3 不要サービス無効化
+    - Config Rules無効化
+    - Security Hub無効化
+    - _Requirements: 7.5_
+  - [x]\* 12.4 コスト監視テスト
+    - 月額コスト確認（$0.50以下）
+    - 無料枠使用量確認
+    - _Requirements: 7.4_
+
+- [x] 13. CI/CD自動化構築
+  - [x] 13.1 GitHub Actionsワークフロー作成
+    - aws-deploy.ymlワークフロー
+    - frontend-deploy.ymlワークフロー
+    - _Requirements: 10.1, 10.2, 9.9_
+  - [x] 13.2 品質チェックジョブ実装
+    - TypeScriptコンパイルチェック
+    - ESLintチェック
+    - Jestテスト実行
+    - _Requirements: 10.3, 10.4_
+  - [x] 13.3 インフラデプロイジョブ実装
+    - CDK synth
+    - CDK diff
+    - CDK deploy
+    - _Requirements: 10.5, 9.10_
+  - [x] 13.4 フロントエンドデプロイジョブ実装
+    - CloudFormation Outputs取得
+    - 環境変数生成
+    - Viteビルド
+    - S3アップロード
+    - _Requirements: 10.6, 10.7_
+  - [x] 13.5 検証ジョブ実装
+    - Lambda環境変数検証
+    - APIヘルスチェック
+    - E2Eテスト実行
+    - _Requirements: 10.8_
+  - [x]\* 13.6 CI/CDパイプラインテスト
+    - develop ブランチpushテスト
+    - タグpushテスト
+    - ロールバックテスト
+    - _Requirements: 10.1-10.8_
+
+- [x] 14. 統合テスト・検証
+  - [x] 14.1 E2Eテスト実装
+    - Playwright設定
+    - 環境別テストスクリプト（local/dev/prod）
+    - 認証フローテスト
+    - _Requirements: 3.1-3.12, 4.1-4.6, 5.1-5.7_
+  - [x] 14.2 API統合テスト
+    - 全エンドポイント疎通確認
+    - データ整合性確認
+    - エラーハンドリング確認
+    - _Requirements: 3.1-3.12_
+  - [x] 14.3 スクレイピング統合テスト
+    - 実際のWebサイトからデータ取得
+    - S3保存確認
+    - 履歴記録確認
+    - _Requirements: 2.1-2.12_
+  - [x] 14.4 パフォーマンステスト
+    - Lambda実行時間測定
+    - メモリ使用量測定
+    - API応答時間測定
+    - _Requirements: 6.5_
+  - [x] 14.5 セキュリティテスト
+    - 認証・認可テスト
+    - S3アクセス制御テスト
+    - IAM権限テスト
+    - _Requirements: 4.1-4.6_
+  - [x] 14.6 本番環境検証
+    - dev環境完全テスト
+    - prod環境デプロイ
+    - prod環境完全テスト
+    - _Requirements: 8.1-8.6_
+
+- [x] 15. ドキュメント整備
+  - [x] 15.1 運用マニュアル作成
+    - 日常運用手順
+    - トラブルシューティング
+    - バックアップ・復旧手順
+    - _Requirements: 9.1-9.10_
+  - [x] 15.2 開発者ガイド作成
+    - ローカル開発環境構築
+    - デプロイ手順
+    - テスト実行方法
+    - _Requirements: 9.1-9.10_
+  - [x] 15.3 API仕様書作成
+    - エンドポイント一覧
+    - リクエスト・レスポンス例
+    - エラーコード一覧
+    - _Requirements: 3.1-3.12_
+
+---
+
+## 注意事項
+
+- **オプションタスク（\*印）**: ユニットテスト・統合テストは品質保証のため推奨されますが、MVP構築では省略可能です
+- **実装順序**: タスクは依存関係を考慮して順序付けされています。基本的に上から順に実装してください
+- **環境分離**: dev環境で十分にテストしてからprod環境にデプロイしてください
+- **コスト監視**: 実装中も定期的にAWSコストを確認し、無料枠内に収まっていることを確認してください
+- **セキュリティ**: IAM権限は最小権限の原則に従い、必要最小限の権限のみ付与してください

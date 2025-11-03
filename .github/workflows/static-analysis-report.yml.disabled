@@ -1,0 +1,65 @@
+name: Code Quality Report
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # 毎週月曜日の午前2時に実行
+  workflow_dispatch:  # 手動実行用
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Lint check
+      run: npm run lint
+      continue-on-error: true
+    
+    - name: Run tests with coverage
+      run: npm run test:coverage
+      continue-on-error: true
+    
+    - name: Generate SonarQube report
+      run: node scripts/generate-sonar-test-report.js
+    
+    - name: SonarQube analysis
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    
+    - name: Generate quality report
+      run: node scripts/quality-report.js
+      
+    - name: Send quality report
+      uses: dawidd6/action-send-mail@v5
+      with:
+        server_address: ${{ secrets.MAIL_SERVER }}
+        server_port: ${{ secrets.MAIL_PORT }}
+        username: ${{ secrets.MAIL_USERNAME }}
+        password: ${{ secrets.MAIL_PASSWORD }}
+        subject: "[Quality Report] ${{ github.repository }} - Weekly Analysis"
+        to: ${{ secrets.REPORT_EMAIL_TO }}
+        from: ${{ secrets.REPORT_EMAIL_FROM }}
+        attachments: ./reports/quality-report.html,./reports/test-coverage.html
+        body: |
+          週次コード品質レポート
+          
+          リポジトリ: ${{ github.repository }}
+          分析日時: ${{ env.ANALYSIS_DATE }}
+          
+          詳細はメール添付のレポートをご確認ください。
+          
+          このメールはCI/CDシステムにより自動送信されています。

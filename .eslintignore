@@ -1,0 +1,42 @@
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+cdk.out/
+
+# CDK Generated files
+*.js.map
+*.d.ts
+pro-candidate-aws/lib/**/*.js
+
+# Lambda JavaScript files (AWS runtime files)
+pro-candidate-aws/lambda/*.js
+
+# Frontend service worker (standalone JavaScript)
+frontend/public/sw.js
+
+# Logs
+*.log
+
+# Test files
+coverage/
+test-results/
+tests/aws/*.js
+
+# Generated documentation
+docs/generated/
+typedoc/
+
+# GAS migration code (legacy)
+# These files contain GAS-specific code that is being migrated to AWS
+# Excluding entire src directory as it contains legacy GAS code
+src/
+
+# Legacy test files and scripts
+tests/**/*.js
+scripts/**/*.js
+*.js
+!frontend/**/*.js
+!pro-candidate-aws/**/*.js
