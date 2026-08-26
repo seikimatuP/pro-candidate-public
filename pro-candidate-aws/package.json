@@ -1,0 +1,46 @@
+{
+  "name": "pro-candidate-aws",
+  "version": "0.1.0",
+  "bin": {
+    "pro-candidate-aws": "bin/pro-candidate-aws.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "deploy:dev": "cdk deploy ProBaseballStack-dev --require-approval never --context stage=dev",
+    "deploy:prod": "cdk deploy ProBaseballStack-prod --require-approval never --context stage=prod",
+    "diff": "cdk diff",
+    "diff:dev": "cdk diff ProBaseballStack-dev --context stage=dev",
+    "diff:prod": "cdk diff ProBaseballStack-prod --context stage=prod",
+    "synth": "cdk synth",
+    "synth:dev": "cdk synth ProBaseballStack-dev --context stage=dev",
+    "synth:prod": "cdk synth ProBaseballStack-prod --context stage=prod",
+    "bootstrap": "cdk bootstrap",
+    "destroy:dev": "cdk destroy ProBaseballStack-dev --context stage=dev",
+    "destroy:prod": "cdk destroy ProBaseballStack-prod --context stage=prod"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.1111.0",
+    "@aws-sdk/client-lambda": "^3.1111.0",
+    "@aws-sdk/client-s3": "^3.1111.0",
+    "@aws-sdk/client-secrets-manager": "^3.1111.0",
+    "@aws-sdk/client-ses": "^3.1111.0",
+    "@aws-sdk/client-ssm": "^3.1111.0",
+    "@types/aws-lambda": "^8.10.162",
+    "@types/cheerio": "^1.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "26.2.0",
+    "aws-cdk": "2.1136.0",
+    "esbuild": "^0.28.2",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.12",
+    "ts-node": "^10.9.2",
+    "typescript": "~7.0.2"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.265.0",
+    "constructs": "^10.8.1"
+  }
+}

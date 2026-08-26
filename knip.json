@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "frontend/src/main.tsx",
+    "pro-candidate-aws/bin/pro-candidate-aws.ts",
+    "pro-candidate-aws/lambda/*.ts",
+    "scripts/**/*.js",
+    "tests/**/*.{ts,js}"
+  ],
+  "project": [
+    "frontend/src/**/*.{ts,tsx}",
+    "pro-candidate-aws/bin/**/*.ts",
+    "pro-candidate-aws/lib/**/*.ts",
+    "pro-candidate-aws/lambda/**/*.ts",
+    "src/**/*.ts"
+  ],
+  "ignore": ["**/dist/**", "**/*.d.ts", "**/node_modules/**"],
+  "ignoreExportsUsedInFile": true,
+  "babel": false,
+  "rules": {
+    "exports": "warn",
+    "types": "warn",
+    "files": "off",
+    "dependencies": "off"
+  }
+}

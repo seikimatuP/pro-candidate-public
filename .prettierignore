@@ -1,0 +1,17 @@
+# GitHub Actions workflows (complex YAML syntax not supported by Prettier)
+.github/workflows/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Lockfiles（pnpmが生成するため、prettierで書き換えてはいけない）
+pnpm-lock.yaml
+
+# CDK outputs
+cdk.out/

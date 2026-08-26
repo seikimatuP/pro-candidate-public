@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- セキュリティヘッダー (CSP - Content Security Policy) -->
+    <!-- 注意: frame-ancestors と X-Frame-Options はHTTPヘッダーでのみ有効なため、metaタグからは除外 -->
+    <!-- CloudFront Response Headers Policyで設定することを推奨 -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com data:;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https://*.execute-api.ap-northeast-1.amazonaws.com https://*.cloudfront.net https://*.amazonaws.com https://cognito-idp.ap-northeast-1.amazonaws.com ws://localhost:* wss://localhost:*;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      upgrade-insecure-requests;
+    ">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+    <!-- 基本メタタグ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--
+      アプリ本体（選手一覧・ダッシュボード）は検索エンジンに掲載しない（#L5）。
+      クロール自体は robots.txt の Disallow で止めているが、外部リンク経由で
+      URL だけが索引される経路が残るため、noindex を併記して二重に塞ぐ。
+      プライバシーポリシー・利用規約は別ファイルのためこの指定の対象外。
+    -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1976d2" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- アイコン -->
+    <link rel="icon" type="image/png" href="/icons/icon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    
+    <!-- SEO メタタグ -->
+    <meta name="description" content="プロ野球志望届の収集・管理・分析を行うWebアプリケーション" />
+    <meta name="keywords" content="プロ野球,志望届,野球,スカウト,データ管理" />
+    <meta name="author" content="Pro Baseball Data Management System" />
+    
+    <!-- OGP メタタグ -->
+    <meta property="og:title" content="プロ野球志望届管理システム" />
+    <meta property="og:description" content="効率的な選手データ収集・分析ツール" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icons/icon-512x512.png" />
+    
+    <title>プロ野球志望届管理システム</title>
+    
+    <!-- App Shell スタイル（初期表示用） -->
+    <style>
+      /* App Shell 最小限のスタイル */
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        background-color: #f5f5f5;
+      }
+      
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* ローディング表示 */
+      .app-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+        color: white;
+      }
+      
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      
+      .loading-subtitle {
+        font-size: 14px;
+        opacity: 0.8;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <!-- App Shell 初期表示 -->
+    <div id="root">
+      <div class="app-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">プロ野球志望届システム</div>
+        <div class="loading-subtitle">読み込み中...</div>
+      </div>
+    </div>
+    
+    
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

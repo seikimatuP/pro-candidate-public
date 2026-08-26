@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "lib": ["ES2019", "DOM"],
+    "downlevelIteration": true,
+    "module": "commonjs",
+    "outDir": "./dist",
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "shared/**/*.ts",
+    "pro-candidate-aws/**/*.ts",
+    "tests/unit/**/*.{ts,tsx}",
+    "tests/integration/**/*.ts",
+    "tests/e2e/**/*.ts",
+    "tests/aws/**/*.{ts,tsx}",
+    "scripts/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "pro-candidate-aws/node_modules",
+    "pro-candidate-aws/cdk.out",
+    "scripts/**/*.js",
+    "tests/aws/**/*.js",
+    "jest.config.js",
+    "jest.config.aws.js",
+    "**/*.d.ts"
+  ]
+}

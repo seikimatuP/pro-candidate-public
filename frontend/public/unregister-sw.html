@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Worker 完全削除</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #c82333;
+    }
+    .log {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 10px;
+      margin: 10px 0;
+      font-family: monospace;
+      font-size: 14px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-bottom: 1px solid #e9ecef;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Service Worker 完全削除ツール</h1>
+    
+    <div id="status" class="status info">
+      Service Worker の状態を確認中...
+    </div>
+    
+    <div id="log" class="log"></div>
+    
+    <div style="margin-top: 20px;">
+      <button onclick="unregisterAllServiceWorkers()">
+        🗑️ すべての Service Worker を削除
+      </button>
+      <button onclick="clearAllCaches()">
+        🧹 すべてのキャッシュを削除
+      </button>
+      <button onclick="clearEverything()">
+        💥 完全クリーンアップ（SW + キャッシュ + Storage）
+      </button>
+    </div>
+    
+    <div style="margin-top: 20px;">
+      <button onclick="checkStatus()">
+        🔍 状態を再確認
+      </button>
+      <button onclick="location.reload()">
+        🔄 ページをリロード
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function addLog(message, type = 'info') {
+      const logDiv = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const timestamp = new Date().toLocaleTimeString('ja-JP');
+      entry.innerHTML = `<span style="color: ${
+        type === 'success' ? 'green' : 
+        type === 'error' ? 'red' : 
+        type === 'warning' ? 'orange' : 'blue'
+      }">[${timestamp}] ${message}</span>`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function updateStatus(message, className) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = 'status ' + className;
+    }
+
+    async function checkStatus() {
+      addLog('Service Worker の状態を確認中...', 'info');
+      
+      if ('serviceWorker' in navigator) {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          
+          if (registrations.length === 0) {
+            updateStatus('✅ Service Worker は登録されていません', 'success');
+            addLog('Service Worker: 0件', 'success');
+          } else {
+            updateStatus(`⚠️ ${registrations.length}個の Service Worker が見つかりました`, 'warning');
+            
+            registrations.forEach((reg, index) => {
+              addLog(`SW ${index + 1}: ${reg.scope}`, 'warning');
+              if (reg.active) {
+                addLog(`  - Active: ${reg.active.scriptURL}`, 'info');
+              }
+              if (reg.waiting) {
+                addLog(`  - Waiting: ${reg.waiting.scriptURL}`, 'info');
+              }
+              if (reg.installing) {
+                addLog(`  - Installing: ${reg.installing.scriptURL}`, 'info');
+              }
+            });
+          }
+        } catch (error) {
+          addLog(`エラー: ${error.message}`, 'error');
+        }
+      } else {
+        updateStatus('Service Worker はサポートされていません', 'info');
+        addLog('このブラウザは Service Worker をサポートしていません', 'info');
+      }
+
+      // キャッシュの確認
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys();
+          if (cacheNames.length > 0) {
+            addLog(`キャッシュ: ${cacheNames.length}個`, 'warning');
+            cacheNames.forEach(name => {
+              addLog(`  - ${name}`, 'info');
+            });
+          } else {
+            addLog('キャッシュ: 0個', 'success');
+          }
+        } catch (error) {
+          addLog(`キャッシュ確認エラー: ${error.message}`, 'error');
+        }
+      }
+    }
+
+    async function unregisterAllServiceWorkers() {
+      addLog('Service Worker の削除を開始...', 'info');
+      
+      if ('serviceWorker' in navigator) {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          
+          if (registrations.length === 0) {
+            addLog('削除する Service Worker がありません', 'info');
+            return;
+          }
+          
+          for (const registration of registrations) {
+            try {
+              const result = await registration.unregister();
+              if (result) {
+                addLog(`✅ 削除成功: ${registration.scope}`, 'success');
+              } else {
+                addLog(`❌ 削除失敗: ${registration.scope}`, 'error');
+              }
+            } catch (error) {
+              addLog(`❌ エラー: ${error.message}`, 'error');
+            }
+          }
+          
+          updateStatus('Service Worker の削除が完了しました', 'success');
+          
+          // 状態を再確認
+          setTimeout(checkStatus, 1000);
+          
+        } catch (error) {
+          addLog(`エラー: ${error.message}`, 'error');
+          updateStatus('Service Worker の削除に失敗しました', 'error');
+        }
+      }
+    }
+
+    async function clearAllCaches() {
+      addLog('キャッシュの削除を開始...', 'info');
+      
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys();
+          
+          if (cacheNames.length === 0) {
+            addLog('削除するキャッシュがありません', 'info');
+            return;
+          }
+          
+          for (const cacheName of cacheNames) {
+            try {
+              const result = await caches.delete(cacheName);
+              if (result) {
+                addLog(`✅ キャッシュ削除成功: ${cacheName}`, 'success');
+              } else {
+                addLog(`❌ キャッシュ削除失敗: ${cacheName}`, 'error');
+              }
+            } catch (error) {
+              addLog(`❌ エラー: ${error.message}`, 'error');
+            }
+          }
+          
+          updateStatus('キャッシュの削除が完了しました', 'success');
+          
+        } catch (error) {
+          addLog(`エラー: ${error.message}`, 'error');
+          updateStatus('キャッシュの削除に失敗しました', 'error');
+        }
+      }
+    }
+
+    async function clearEverything() {
+      addLog('完全クリーンアップを開始...', 'warning');
+      
+      // 1. Service Worker を削除
+      await unregisterAllServiceWorkers();
+      
+      // 2. キャッシュを削除
+      await clearAllCaches();
+      
+      // 3. localStorage をクリア
+      try {
+        localStorage.clear();
+        addLog('✅ localStorage をクリアしました', 'success');
+      } catch (error) {
+        addLog(`❌ localStorage クリアエラー: ${error.message}`, 'error');
+      }
+      
+      // 4. sessionStorage をクリア
+      try {
+        sessionStorage.clear();
+        addLog('✅ sessionStorage をクリアしました', 'success');
+      } catch (error) {
+        addLog(`❌ sessionStorage クリアエラー: ${error.message}`, 'error');
+      }
+      
+      // 5. IndexedDB をクリア（可能な限り）
+      if ('indexedDB' in window) {
+        try {
+          const databases = await indexedDB.databases();
+          for (const db of databases) {
+            if (db.name) {
+              indexedDB.deleteDatabase(db.name);
+              addLog(`✅ IndexedDB 削除: ${db.name}`, 'success');
+            }
+          }
+        } catch (error) {
+          addLog(`IndexedDB クリア（一部のブラウザでは未サポート）`, 'warning');
+        }
+      }
+      
+      updateStatus('🎉 完全クリーンアップが完了しました！', 'success');
+      addLog('ページをリロードして変更を反映してください', 'warning');
+    }
+
+    // ページ読み込み時に状態を確認
+    window.addEventListener('load', () => {
+      checkStatus();
+    });
+  </script>
+</body>
+</html>

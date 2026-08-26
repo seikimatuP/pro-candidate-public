@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/kucherenko/jscpd/master/apps/jscpd/schema.json",
+  "format": ["typescript", "tsx", "javascript", "jsx"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/*.d.ts",
+    "**/coverage/**",
+    "**/frontend/coverage/**"
+  ],
+  "reporters": ["console", "sarif"],
+  "output": "./report"
+}

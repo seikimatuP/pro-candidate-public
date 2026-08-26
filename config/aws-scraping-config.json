@@ -1,0 +1,36 @@
+{
+  "scraping": {
+    "urls": {
+      "highschool": "https://www.jhbf.or.jp/pro-aspiring",
+      "university": "https://www.jubf.net/system/prog/procandidate.php"
+    },
+    "settings": {
+      "timeout": 30000,
+      "retryCount": 3,
+      "userAgent": "Mozilla/5.0 (compatible; DataScraper/1.0; AWS Lambda; +mailto:yuta.nozue@gmail.com)",
+      "delayBetweenRequests": 1000
+    },
+    "parsing": {
+      "highschool": {
+        "tableSelector": "table.player-list",
+        "rowSelector": "tr",
+        "nameSelector": "td:nth-child(1)",
+        "schoolSelector": "td:nth-child(2)",
+        "positionSelector": "td:nth-child(3)"
+      },
+      "university": {
+        "tableSelector": "table#player-table",
+        "rowSelector": "tbody tr",
+        "nameSelector": "td.name",
+        "schoolSelector": "td.school",
+        "positionSelector": "td.position"
+      }
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-06-08T00:00:00Z",
+    "updatedBy": "system",
+    "description": "プロ野球志望届スクレイピング設定"
+  }
+}
